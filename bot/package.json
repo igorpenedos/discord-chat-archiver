@@ -1,0 +1,25 @@
+{
+  "name": "discord-chat-archiver",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/igorpenedos/discord-chat-archiver.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/igorpenedos/discord-chat-archiver/issues"
+  },
+  "homepage": "https://github.com/igorpenedos/discord-chat-archiver#readme",
+  "dependencies": {
+    "discord.js": "^14.14.1",
+    "dotenv": "^16.4.5",
+    "node": "^18.20.2"
+  }
+}
