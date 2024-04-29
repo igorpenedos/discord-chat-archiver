@@ -47,15 +47,18 @@ export const Parser = () => {
                   )}
                 </div>
                 <div>
-                  {c?.attachments?.map((a: any, i: number) => (
-                    <img
-                      src={a.attachment}
-                      alt={a.name}
-                      width={a.width}
-                      height={a.height}
-                      key={i}
-                    />
-                  ))}
+                  {c?.attachments?.map((a: any, i: number) => {
+                    console.log(a);
+                    return (
+                      <img
+                        src={`data:${a.contentType};base64,${a.base64}`}
+                        alt={a.name}
+                        width={a.width}
+                        height={a.height}
+                        key={i}
+                      />
+                    );
+                  })}
                 </div>
               </div>
             </div>

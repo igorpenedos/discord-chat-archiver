@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 import { Client, GatewayIntentBits, AttachmentBuilder } from "discord.js";
-import fs from "fs";
+import axios from "axios";
 
 const client = new Client({
   intents: [
@@ -24,32 +24,46 @@ client.on("messageCreate", async (message) => {
   if (message.content.toLowerCase() === "!chatarchive") {
     message.channel.send("Archiving...");
 
-    message.channel.messages.fetch().then((messages) => {
-      message.channel.send(`Archiving ${messages.size} messages`);
+    const messages = await message.channel.messages.fetch();
+    message.channel.send(`Archiving ${messages.size} messages`);
 
-      let history = [];
+    let history = [];
 
-      messages.forEach((m) => {
-        console.log(m);
-        const { author, content, createdTimestamp, attachments } = m;
-        if (author.id !== "1229268973032312883") {
-          history.unshift({
-            author: author.username,
-            message: content,
-            timestamp: createdTimestamp,
-            attachments,
+    for (const m of messages.values()) {
+      let { author, content, createdTimestamp, attachments } = m;
+
+      attachments = await Promise.all(
+        attachments.map(async (attachment) => {
+          const res = await axios.get(attachment.url, {
+            responseType: "arraybuffer",
           });
-        }
-      });
+          console.log(res);
+          if (res && res.status == 200) {
+            const contentType = res.headers["content-type"];
+            const base64 = Buffer.from(res.data, "binary").toString("base64");
 
-      const historyJSON = JSON.stringify(history);
+            return { ...attachment, contentType, base64 };
+          }
+        })
+      );
 
-      const file = new AttachmentBuilder(Buffer.from(historyJSON), {
-        name: message.channel.name + ".json",
-      });
+      if (author.id !== "1229268973032312883") {
+        history.unshift({
+          author: author.username,
+          message: content,
+          timestamp: createdTimestamp,
+          attachments,
+        });
+      }
+    }
 
-      message.reply({ content: "Archived Chats:", files: [file] });
+    const historyJSON = JSON.stringify(history);
+
+    const file = new AttachmentBuilder(Buffer.from(historyJSON), {
+      name: message.channel.name + ".json",
     });
+
+    message.reply({ content: "Archived Chats:", files: [file] });
   }
 });
 
